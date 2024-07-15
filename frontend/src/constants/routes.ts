@@ -50,6 +50,7 @@ const ROUTES = {
 	PROJECT_MANAGER: '/project-manager',
 	JIRA_REPORTS: '/jira-reports',
 	LOGAN: '/logan',
+	APPLOGS: '/app-logs',
 } as const;
 
 export default ROUTES;
