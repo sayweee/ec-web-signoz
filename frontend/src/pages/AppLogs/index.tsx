@@ -264,8 +264,8 @@ function Logan(): JSX.Element {
 			formData.append('files', file as any);
 		});
 		formData.append('isLogan', '0');
-		// formData.append('plantform', '2');
-		// formData.append('loganId', '0');
+		formData.append('plantform', '2');
+		formData.append('loganId', '0');
 
 		setUploading(true);
 		// You can use any AJAX library you like
@@ -307,7 +307,7 @@ function Logan(): JSX.Element {
 			<h1 style={isDarkMode ? { color: 'white' } : { color: 'black' }}>
 				App Logs
 			</h1>
-			<Upload {...uploadProps}>
+			{/* <Upload {...uploadProps}>
 				<Button>Select File</Button>
 			</Upload>
 			<Button
@@ -318,7 +318,7 @@ function Logan(): JSX.Element {
 				style={{ marginTop: 16 }}
 			>
 				{uploading ? 'Uploading' : 'Start Upload'}
-			</Button>
+			</Button> */}
 			<div>
 				<Form name="search-form" layout="inline">
 					<Form.Item label="File Name" style={{ marginBottom: 10 }}>
