@@ -153,11 +153,31 @@ function Logan(): JSX.Element {
 			title: 'UserId',
 			dataIndex: 'userId',
 			key: 'userId',
+			render: (value) => {
+				if (value?.length > 10) {
+					return (
+						<Tooltip title={value}>
+							<span>{`${value.slice(0, 10)}...`}</span>
+						</Tooltip>
+					);
+				}
+				return <span>{value}</span>;
+			},
 		},
 		{
 			title: 'DeviceId',
 			dataIndex: 'deviceId',
 			key: 'deviceId',
+			render: (value) => {
+				if (value?.length > 10) {
+					return (
+						<Tooltip title={value}>
+							<span>{`${value.slice(0, 10)}...`}</span>
+						</Tooltip>
+					);
+				}
+				return <span>{value}</span>;
+			},
 		},
 		{
 			title: 'Enable Report',
@@ -172,6 +192,13 @@ function Logan(): JSX.Element {
 			key: 'isReported',
 			width: 120,
 			render: (value, record) => <span>{value === 1 ? 'Yes' : 'No'}</span>,
+		},
+		{
+			title: 'App No File',
+			dataIndex: 'not_match_file',
+			key: 'not_match_file',
+			width: 120,
+			render: (value, record) => <span>{value === 1 ? 'Yes' : '-'}</span>,
 		},
 		{
 			title: 'Time Select',
@@ -195,6 +222,16 @@ function Logan(): JSX.Element {
 			title: 'Bug Link',
 			dataIndex: 'bugLink',
 			key: 'bugLink',
+			render: (value) => {
+				if (value?.length > 8) {
+					return (
+						<Tooltip title={value}>
+							<span>{`${value.slice(0, 8)}...`}</span>
+						</Tooltip>
+					);
+				}
+				return <span>{value}</span>;
+			},
 		},
 		{
 			title: 'File Address',

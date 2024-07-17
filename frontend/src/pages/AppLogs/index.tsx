@@ -20,6 +20,7 @@ import axios from 'axios';
 import { ResizeTable } from 'components/ResizeTable';
 import dayjs, { Dayjs } from 'dayjs';
 import { useIsDarkMode } from 'hooks/useDarkMode';
+import useUrlQuery from 'hooks/useUrlQuery';
 import { camelCase } from 'lodash-es';
 import { useEffect, useState } from 'react';
 
@@ -69,6 +70,8 @@ function Logan(): JSX.Element {
 
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 	const [uploading, setUploading] = useState(false);
+	const params = useUrlQuery();
+	const queryTest = params.get('test');
 
 	const deleteTask = async (id: number) => {
 		try {
@@ -265,7 +268,7 @@ function Logan(): JSX.Element {
 		});
 		formData.append('isLogan', '0');
 		formData.append('plantform', '2');
-		formData.append('loganId', '0');
+		// formData.append('loganId', '0');
 
 		setUploading(true);
 		// You can use any AJAX library you like
@@ -307,18 +310,23 @@ function Logan(): JSX.Element {
 			<h1 style={isDarkMode ? { color: 'white' } : { color: 'black' }}>
 				App Logs
 			</h1>
-			{/* <Upload {...uploadProps}>
-				<Button>Select File</Button>
-			</Upload>
-			<Button
-				type="primary"
-				onClick={handleUpload}
-				disabled={fileList.length === 0}
-				loading={uploading}
-				style={{ marginTop: 16 }}
-			>
-				{uploading ? 'Uploading' : 'Start Upload'}
-			</Button> */}
+			{!!queryTest && (
+				<>
+					<Upload {...uploadProps}>
+						<Button>Select File</Button>
+					</Upload>
+					<Button
+						type="primary"
+						onClick={handleUpload}
+						disabled={fileList.length === 0}
+						loading={uploading}
+						style={{ marginTop: 16 }}
+					>
+						{uploading ? 'Uploading' : 'Start Upload'}
+					</Button>
+				</>
+			)}
+
 			<div>
 				<Form name="search-form" layout="inline">
 					<Form.Item label="File Name" style={{ marginBottom: 10 }}>
