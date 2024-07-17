@@ -195,8 +195,8 @@ function Logan(): JSX.Element {
 		},
 		{
 			title: 'App No File',
-			dataIndex: 'not_match_file',
-			key: 'not_match_file',
+			dataIndex: 'notMatchFile',
+			key: 'notMatchFile',
 			width: 120,
 			render: (value, record) => <span>{value === 1 ? 'Yes' : '-'}</span>,
 		},
