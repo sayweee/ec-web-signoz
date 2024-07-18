@@ -31,7 +31,6 @@ export interface LoganTableType {
 	isLogan: number;
 	platform: number;
 	fileLink: string;
-	// timeSelect: string[];
 	createdAt: string;
 }
 
@@ -122,13 +121,13 @@ function Logan(): JSX.Element {
 			dataIndex: 'name',
 			key: 'name',
 			render: (value, record) => {
-				// if (value.length > 8) {
-				// 	return (
-				// 		<Tooltip title={value}>
-				// 			<span>{`${value.slice(0, 8)}...`}</span>
-				// 		</Tooltip>
-				// 	);
-				// }
+				if (value?.length > 8) {
+					return (
+						<Tooltip title={value}>
+							<span>{`${value.slice(0, 8)}...`}</span>
+						</Tooltip>
+					);
+				}
 				return <span>{value}</span>;
 			},
 		},
@@ -272,7 +271,7 @@ function Logan(): JSX.Element {
 
 		setUploading(true);
 		// You can use any AJAX library you like
-		fetch('http://localhost:9331/capi/logan/logUpload', {
+		fetch(`${process.env.SERVER_API_HOST}/capi/logan/logUpload`, {
 			method: 'POST',
 			body: formData,
 		})
