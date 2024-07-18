@@ -203,3 +203,7 @@ export const JiraReports = Loadable(
 export const Logan = Loadable(
 	() => import(/* webpackChunkName: "LoganPage" */ 'pages/Logan'),
 );
+
+export const AppLogs = Loadable(
+	() => import(/* webpackChunkName: "LoganPage" */ 'pages/AppLogs'),
+);

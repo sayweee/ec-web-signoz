@@ -112,6 +112,11 @@ const menuItems: SidebarItem[] = [
 		label: 'Logan',
 		icon: <FileSearch size={16} />,
 	},
+	{
+		key: ROUTES.APPLOGS,
+		label: 'App Logs',
+		icon: <FileSearch size={16} />,
+	},
 	// {
 	// 	key: ROUTES.SERVICE_MAP,
 	// 	label: 'Service Map',

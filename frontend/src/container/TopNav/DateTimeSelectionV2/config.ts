@@ -138,6 +138,7 @@ export const routesToSkip = [
 	ROUTES.PROJECT_MANAGER,
 	ROUTES.JIRA_REPORTS,
 	ROUTES.LOGAN,
+	ROUTES.APPLOGS,
 ];
 
 export const routesToDisable = [ROUTES.LOGS_EXPLORER, ROUTES.LIVE_LOGS];

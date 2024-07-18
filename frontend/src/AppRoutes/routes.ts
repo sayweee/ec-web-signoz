@@ -7,6 +7,7 @@ import {
 	AllAlertChannels,
 	AllErrors,
 	APIKeys,
+	AppLogs,
 	BillingPage,
 	CreateAlertChannelAlerts,
 	CreateNewAlerts,
@@ -358,6 +359,13 @@ const routes: AppRoutes[] = [
 		component: Logan,
 		isPrivate: true,
 		key: 'LOGAN',
+	},
+	{
+		path: ROUTES.APPLOGS,
+		exact: true,
+		component: AppLogs,
+		isPrivate: true,
+		key: 'APPLOGS',
 	},
 ];
 

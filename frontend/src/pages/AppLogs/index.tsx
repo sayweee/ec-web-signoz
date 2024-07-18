@@ -1,5 +1,5 @@
 import { ExclamationCircleOutlined, SearchOutlined } from '@ant-design/icons';
-import type { TableProps } from 'antd';
+import type { TableProps, UploadFile, UploadProps } from 'antd';
 import {
 	Button,
 	Col,
@@ -14,35 +14,31 @@ import {
 	Table,
 	Tag,
 	Tooltip,
+	Upload,
 } from 'antd';
 import axios from 'axios';
 import { ResizeTable } from 'components/ResizeTable';
 import dayjs, { Dayjs } from 'dayjs';
 import { useIsDarkMode } from 'hooks/useDarkMode';
+import useUrlQuery from 'hooks/useUrlQuery';
 import { camelCase } from 'lodash-es';
 import { useEffect, useState } from 'react';
 
-import LoganTaskModal from './loganTaskModal';
 /* eslint-disable */
 export interface LoganTableType {
 	id: number;
 	name: string;
-	userId: string;
-	deviceId: string;
-	timeSelect: string[];
-	createAt: string;
-	needReport: number;
-	isReported: number;
-	logFileName: string;
-	bugLink: string;
-	desc: string;
+	isLogan: number;
+	platform: number;
+	fileLink: string;
+	createdAt: string;
 }
 
 interface SearchParamType {
 	name?: string;
-	userId?: string;
-	deviceId?: string;
-	isReported?: number;
+	isLogan?: string;
+	platform?: string;
+	timeSelect?: number[];
 }
 
 type Pagination = {
@@ -62,37 +58,24 @@ function Logan(): JSX.Element {
 	const [messageApi] = message.useMessage();
 	const isDarkMode = useIsDarkMode();
 	const [timeSelect, setTimeSelect] = useState<Dayjs[]>([]);
-	const [modalVisible, setModalVisible] = useState<boolean>(false);
-	const [modalIsEdit, setModalIsEdit] = useState<boolean>(false);
 	const [searchLoading, setSearchLoading] = useState<boolean>(false);
 	const [tableData, setTableData] = useState<LoganTableType[]>([]);
 	const [tableTotal, setTableTotal] = useState<number>(0);
-	const [curRecord, setCurRecord] = useState<LoganTableType | null>(null);
 	const [pagination, setPagination] = useState<Pagination>({
 		current: 1,
 		pageSize: 20,
 	});
 	const [searchParam, setSearchParam] = useState<SearchParamType>();
 
-	const handleShowModal = (isEdit: boolean) => {
-		setModalIsEdit(isEdit);
-		setModalVisible(true);
-	};
-
-	const handleEdit = (record: LoganTableType) => {
-		setCurRecord(record);
-		handleShowModal(true);
-	};
-
-	const handleCreate = () => {
-		setCurRecord(null);
-		handleShowModal(false);
-	};
+	const [fileList, setFileList] = useState<UploadFile[]>([]);
+	const [uploading, setUploading] = useState(false);
+	const params = useUrlQuery();
+	const queryTest = params.get('test');
 
 	const deleteTask = async (id: number) => {
 		try {
 			const { data } = await axios.post(
-				`${process.env.SERVER_API_HOST}/capi/logan/deleteLoganTask`,
+				`${process.env.SERVER_API_HOST}/capi/logan/logDelete`,
 				{
 					id,
 				},
@@ -134,95 +117,10 @@ function Logan(): JSX.Element {
 
 	const columns: TableProps<LoganTableType>['columns'] = [
 		{
-			title: 'Task Name',
+			title: 'File Name',
 			dataIndex: 'name',
 			key: 'name',
-			width: 120,
 			render: (value, record) => {
-				if (value.length > 8) {
-					return (
-						<Tooltip title={value}>
-							<span>{`${value.slice(0, 8)}...`}</span>
-						</Tooltip>
-					);
-				}
-				return <span>{value}</span>;
-			},
-		},
-		{
-			title: 'UserId',
-			dataIndex: 'userId',
-			key: 'userId',
-			render: (value) => {
-				if (value?.length > 10) {
-					return (
-						<Tooltip title={value}>
-							<span>{`${value.slice(0, 10)}...`}</span>
-						</Tooltip>
-					);
-				}
-				return <span>{value}</span>;
-			},
-		},
-		{
-			title: 'DeviceId',
-			dataIndex: 'deviceId',
-			key: 'deviceId',
-			render: (value) => {
-				if (value?.length > 10) {
-					return (
-						<Tooltip title={value}>
-							<span>{`${value.slice(0, 10)}...`}</span>
-						</Tooltip>
-					);
-				}
-				return <span>{value}</span>;
-			},
-		},
-		{
-			title: 'Enable Report',
-			dataIndex: 'needReport',
-			key: 'needReport',
-			width: 130,
-			render: (value, record) => <span>{value === 1 ? 'Yes' : 'No'}</span>,
-		},
-		{
-			title: 'Is Reported',
-			dataIndex: 'isReported',
-			key: 'isReported',
-			width: 120,
-			render: (value, record) => <span>{value === 1 ? 'Yes' : 'No'}</span>,
-		},
-		{
-			title: 'App No File',
-			dataIndex: 'notMatchFile',
-			key: 'notMatchFile',
-			width: 120,
-			render: (value, record) => <span>{value === 1 ? 'Yes' : '-'}</span>,
-		},
-		{
-			title: 'Time Select',
-			dataIndex: 'timeSelect',
-			key: 'timeSelect',
-			render: (value, record) => {
-				return record.timeSelect.map((item: string) => (
-					<span style={{ marginRight: 14 }}>{dayjs(item).format('MM/DD/YYYY')}</span>
-				));
-			},
-		},
-		{
-			title: 'Create Time',
-			dataIndex: 'createdAt',
-			key: 'createdAt',
-			render: (value, record) => (
-				<span>{dayjs(value).format('MM/DD/YYYY HH:mm:ss')}</span>
-			),
-		},
-		{
-			title: 'Bug Link',
-			dataIndex: 'bugLink',
-			key: 'bugLink',
-			render: (value) => {
 				if (value?.length > 8) {
 					return (
 						<Tooltip title={value}>
@@ -234,51 +132,42 @@ function Logan(): JSX.Element {
 			},
 		},
 		{
+			title: 'Create Time',
+			dataIndex: 'createdAt',
+			key: 'createdAt',
+			render: (value, record) => (
+				<span>{dayjs(value).format('MM/DD/YYYY HH:mm:ss')}</span>
+			),
+		},
+		{
+			title: 'Is Logan',
+			dataIndex: 'isLogan',
+			key: 'isLogan',
+			render: (value, record) => <span>{value === 1 ? 'Yes' : 'No'}</span>,
+		},
+		{
+			title: 'Platform',
+			dataIndex: 'platform',
+			key: 'platform',
+			render: (value, record) => {
+				const lib = {
+					'1': 'iOS',
+					'2': 'Android',
+					'3': 'flutter',
+				};
+				return <span>{(lib as any)[value] || 'unknow'}</span>;
+			},
+		},
+		{
 			title: 'File Address',
-			dataIndex: 'logFileName',
-			key: 'logFileName',
-			width: 160,
+			dataIndex: 'fileLink',
+			key: 'fileLink',
 			render: (value, record) => {
 				return (
 					<div>
-						{record.logFileName ? (
-							record.logFileName.split(',').map((item: string, i: number) => {
-								if (item.length > 14) {
-									return (
-										<Tooltip title={item}>
-											<a
-												key={i}
-												href={`${
-													item.indexOf('https') > -1
-														? item
-														: process.env.LOGAN_FILE_PATH + item
-												}`}
-												target="_blank"
-												style={{ display: 'block' }}
-											>
-												{`${item.slice(0, 14)}...`}
-											</a>
-										</Tooltip>
-									);
-								}
-								return (
-									<a
-										key={i}
-										href={`${
-											item.indexOf('https') > -1
-												? item
-												: process.env.LOGAN_FILE_PATH + item
-										}`}
-										target="_blank"
-										style={{ display: 'block' }}
-									>
-										{item}
-									</a>
-								);
-							})
-						) : (
-							<></>
-						)}
+						<a href={`${value}`} target="_blank" style={{ display: 'block' }}>
+							{value}
+						</a>
 					</div>
 				);
 			},
@@ -288,7 +177,6 @@ function Logan(): JSX.Element {
 			key: 'action',
 			render: (_, record) => (
 				<Space size="middle">
-					<a onClick={() => handleEdit(record)}>Edit</a>
 					<a onClick={() => handleDelete(record)}>Delete</a>
 				</Space>
 			),
@@ -299,10 +187,6 @@ function Logan(): JSX.Element {
 		const finalParam = {} as any;
 		for (const key in param as any) {
 			if (String(param[key])) {
-				if (key === 'time_select') {
-					finalParam[camelCase(key)] = param[key].split(',');
-					continue;
-				}
 				finalParam[camelCase(key)] = param[key];
 			}
 		}
@@ -313,7 +197,7 @@ function Logan(): JSX.Element {
 		try {
 			setSearchLoading(true);
 			const { data } = await axios.post(
-				`${process.env.SERVER_API_HOST}/capi/logan/searchLoganTable`,
+				`${process.env.SERVER_API_HOST}/capi/logan/logSearchList`,
 				searchParam,
 			);
 			if (data.result) {
@@ -356,7 +240,8 @@ function Logan(): JSX.Element {
 		}
 		if (timeSelect.length) {
 			Object.assign(param, {
-				timeSelect: timeSelect.map((item) => dayjs(item).format('YYYY-MM-DD')),
+				// timeSelect: timeSelect.map((item) => dayjs(item).format('YYYY-MM-DD')),
+				timeSelect: timeSelect.map((item) => dayjs(item).valueOf()),
 			});
 		}
 		searchLogan(param);
@@ -375,13 +260,75 @@ function Logan(): JSX.Element {
 		handleSearch();
 	}, []);
 
+	const handleUpload = () => {
+		const formData = new FormData();
+		fileList.forEach((file) => {
+			formData.append('files', file as any);
+		});
+		formData.append('isLogan', '0');
+		formData.append('plantform', '2');
+		// formData.append('loganId', '0');
+
+		setUploading(true);
+		// You can use any AJAX library you like
+		fetch(`${process.env.SERVER_API_HOST}/capi/logan/logUpload`, {
+			method: 'POST',
+			body: formData,
+		})
+			.then((res) => res.json())
+			.then(() => {
+				setFileList([]);
+				message.success('upload successfully.');
+			})
+			.catch(() => {
+				message.error('upload failed.');
+			})
+			.finally(() => {
+				setUploading(false);
+			});
+	};
+
+	const uploadProps: UploadProps = {
+		onRemove: (file) => {
+			const index = fileList.indexOf(file);
+			const newFileList = fileList.slice();
+			newFileList.splice(index, 1);
+			setFileList(newFileList);
+		},
+		beforeUpload: (file) => {
+			setFileList([...fileList, file]);
+
+			return false;
+		},
+		fileList,
+	};
+
 	return (
 		<>
 			{contextHolder}
-			<h1 style={isDarkMode ? { color: 'white' } : { color: 'black' }}>Logan</h1>
+			<h1 style={isDarkMode ? { color: 'white' } : { color: 'black' }}>
+				App Logs
+			</h1>
+			{!!queryTest && (
+				<>
+					<Upload {...uploadProps}>
+						<Button>Select File</Button>
+					</Upload>
+					<Button
+						type="primary"
+						onClick={handleUpload}
+						disabled={fileList.length === 0}
+						loading={uploading}
+						style={{ marginTop: 16 }}
+					>
+						{uploading ? 'Uploading' : 'Start Upload'}
+					</Button>
+				</>
+			)}
+
 			<div>
 				<Form name="search-form" layout="inline">
-					<Form.Item label="Task Name" style={{ marginBottom: 10 }}>
+					<Form.Item label="File Name" style={{ marginBottom: 10 }}>
 						<Input
 							style={{ width: 160 }}
 							placeholder="Please input"
@@ -390,47 +337,34 @@ function Logan(): JSX.Element {
 							onChange={(e) => handleInput('name', e.target.value)}
 						/>
 					</Form.Item>
-					<Form.Item label="UserId" style={{ marginBottom: 10 }}>
-						<Input
-							style={{ width: 160 }}
-							placeholder="Please input"
-							value={searchParam?.userId}
-							onChange={(e) => handleInput('userId', e.target.value)}
-							allowClear
-						/>
-					</Form.Item>
-					<Form.Item label="DeviceId" style={{ marginBottom: 10 }}>
-						<Input
-							style={{ width: 160 }}
-							placeholder="Please input"
-							value={searchParam?.deviceId}
-							onChange={(e) => handleInput('deviceId', e.target.value)}
-							allowClear
-						/>
-					</Form.Item>
-					<Form.Item label="Create Time" style={{ marginBottom: 10 }}>
-						<RangePicker
-							format="YYYY-MM-DD"
-							popupStyle={
-								isDarkMode ? { backgroundColor: 'black' } : { backgroundColor: 'white' }
-							}
-							defaultValue={[timeSelect[0], timeSelect[1]]}
-							onChange={(value, dateString: [string, string]) => {
-								if (Array.isArray(value)) {
-									setTimeSelect(value as [Dayjs, Dayjs]);
-								} else {
-									setTimeSelect([]);
-								}
-							}}
-						/>
-					</Form.Item>
-					<Form.Item label="Is Reported" style={{ marginBottom: 10 }}>
+
+					<Form.Item label="Platform" style={{ marginBottom: 10 }}>
 						<Select
 							allowClear
-							placeholder="Select a project"
+							placeholder="Select Platform"
 							style={{ width: 180 }}
 							onChange={(value: string) => {
-								handleInput('isReported', value);
+								handleInput('platform', value);
+							}}
+							options={[
+								{
+									value: 1,
+									label: 'Ios',
+								},
+								{
+									value: 2,
+									label: 'Android',
+								},
+							]}
+						/>
+					</Form.Item>
+					<Form.Item label="Is Logan" style={{ marginBottom: 10 }}>
+						<Select
+							allowClear
+							placeholder="Select is Logan"
+							style={{ width: 180 }}
+							onChange={(value: string) => {
+								handleInput('isLogan', value);
 							}}
 							options={[
 								{
@@ -444,6 +378,24 @@ function Logan(): JSX.Element {
 							]}
 						/>
 					</Form.Item>
+					<Form.Item label="Created Time" style={{ marginBottom: 10 }}>
+						<RangePicker
+							format="YYYY-MM-DD HH:mm:ss"
+							showTime
+							popupStyle={
+								isDarkMode ? { backgroundColor: 'black' } : { backgroundColor: 'white' }
+							}
+							defaultValue={[timeSelect[0], timeSelect[1]]}
+							onChange={(value, dateString: [string, string]) => {
+								if (Array.isArray(value)) {
+									setTimeSelect(value as [Dayjs, Dayjs]);
+								} else {
+									setTimeSelect([]);
+								}
+							}}
+						/>
+					</Form.Item>
+
 					<Form.Item label=" " colon={false} style={{ marginBottom: 10 }}>
 						<Button type="primary" onClick={() => handleSearch()}>
 							Search
@@ -458,11 +410,7 @@ function Logan(): JSX.Element {
 					alignItems: 'center',
 					marginBottom: 10,
 				}}
-			>
-				<Button type="primary" onClick={handleCreate}>
-					Create Task
-				</Button>
-			</div>
+			></div>
 			<ResizeTable
 				columns={columns}
 				rowKey={(record) => record.id}
@@ -473,17 +421,6 @@ function Logan(): JSX.Element {
 					total: tableTotal,
 				}}
 				onChange={handleTableChange}
-			/>
-
-			{/* modal弹窗 */}
-			<LoganTaskModal
-				visible={modalVisible}
-				isEdit={modalIsEdit}
-				record={curRecord}
-				handleClose={(needFresh: boolean) => {
-					setModalVisible(false);
-					if (needFresh) handleSearch();
-				}}
 			/>
 		</>
 	);
