@@ -165,8 +165,12 @@ function Logan(): JSX.Element {
 			render: (value, record) => {
 				return (
 					<div>
-						<a href={`${value}`} target="_blank" style={{ display: 'block' }}>
-							{value}
+						<a
+							href={`${process.env.SERVER_API_HOST}/capi/logan/logDownload?id=${record.id}`}
+							target="_blank"
+							style={{ display: 'block' }}
+						>
+							{record.name}
 						</a>
 					</div>
 				);
