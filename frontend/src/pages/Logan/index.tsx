@@ -240,12 +240,12 @@ function Logan(): JSX.Element {
 			key: 'logFileName',
 			width: 160,
 			render: (value, record) => {
-				const logIds = record.appLogIds?.split(',');
-				const logFileName = record.logFileName?.split(',');
-				if (!logIds && !logFileName) return null;
+				const logIds = record.appLogIds?.split(',') || [];
+				const logFileName = record.logFileName?.split(',') || [];
+				if (!logIds.length && !logFileName.length) return null;
 				return (
 					<div>
-						{logFileName.map((item: string, i: number) => {
+						{logFileName?.map((item: string, i: number) => {
 							if (item.length > 14) {
 								return (
 									<Tooltip title={item}>
