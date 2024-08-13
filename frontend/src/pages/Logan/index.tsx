@@ -242,7 +242,6 @@ function Logan(): JSX.Element {
 			render: (value, record) => {
 				const logIds = record.appLogIds?.split(',') || [];
 				const logFileName = record.logFileName?.split(',') || [];
-				// if (!logIds.length && !logFileName.length) return null;
 				if (!logFileName.length) return null;
 				return (
 					<div>
@@ -262,8 +261,7 @@ function Logan(): JSX.Element {
 											target="_blank"
 											style={{ display: 'block' }}
 										>
-											{/* {`${item.slice(0, 14)}...`} */}
-											{`${record.name.slice(0, 14)}...`}
+											{`${item.slice(0, 14)}...`}
 										</a>
 									</Tooltip>
 								);
@@ -271,7 +269,6 @@ function Logan(): JSX.Element {
 							return (
 								<a
 									key={i}
-									// href={`${process.env.SERVER_API_HOST}/capi/logan/logDownload?id=${logIds[i]}`}
 									href={`${
 										logIds.length > 0
 											? process.env.SERVER_API_HOST +
@@ -282,7 +279,7 @@ function Logan(): JSX.Element {
 									target="_blank"
 									style={{ display: 'block' }}
 								>
-									{record.name}
+									{item}
 								</a>
 							);
 						})}
