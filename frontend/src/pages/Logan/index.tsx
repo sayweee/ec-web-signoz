@@ -36,6 +36,7 @@ export interface LoganTableType {
 	logFileName: string;
 	bugLink: string;
 	desc: string;
+	appLogIds: string;
 }
 
 interface SearchParamType {
@@ -239,46 +240,49 @@ function Logan(): JSX.Element {
 			key: 'logFileName',
 			width: 160,
 			render: (value, record) => {
+				const logIds = record.appLogIds?.split(',') || [];
+				const logFileName = record.logFileName?.split(',') || [];
+				if (!logFileName.length) return null;
 				return (
 					<div>
-						{record.logFileName ? (
-							record.logFileName.split(',').map((item: string, i: number) => {
-								if (item.length > 14) {
-									return (
-										<Tooltip title={item}>
-											<a
-												key={i}
-												href={`${
-													item.indexOf('https') > -1
-														? item
-														: process.env.LOGAN_FILE_PATH + item
-												}`}
-												target="_blank"
-												style={{ display: 'block' }}
-											>
-												{`${item.slice(0, 14)}...`}
-											</a>
-										</Tooltip>
-									);
-								}
+						{logFileName?.map((item: string, i: number) => {
+							if (item.length > 14) {
 								return (
-									<a
-										key={i}
-										href={`${
-											item.indexOf('https') > -1
-												? item
-												: process.env.LOGAN_FILE_PATH + item
-										}`}
-										target="_blank"
-										style={{ display: 'block' }}
-									>
-										{item}
-									</a>
+									<Tooltip title={item}>
+										<a
+											key={i}
+											href={`${
+												logIds.length > 0
+													? process.env.SERVER_API_HOST +
+													  '/capi/logan/logDownload?id=' +
+													  logIds[i]
+													: process.env.LOGAN_FILE_PATH + item
+											}`}
+											target="_blank"
+											style={{ display: 'block' }}
+										>
+											{`${item.slice(0, 14)}...`}
+										</a>
+									</Tooltip>
 								);
-							})
-						) : (
-							<></>
-						)}
+							}
+							return (
+								<a
+									key={i}
+									href={`${
+										logIds.length > 0
+											? process.env.SERVER_API_HOST +
+											  '/capi/logan/logDownload?id=' +
+											  logIds[i]
+											: process.env.LOGAN_FILE_PATH + item
+									}`}
+									target="_blank"
+									style={{ display: 'block' }}
+								>
+									{item}
+								</a>
+							);
+						})}
 					</div>
 				);
 			},
