@@ -166,7 +166,7 @@ function Logan(): JSX.Element {
 				return (
 					<div>
 						<a
-							href={`${process.env.SERVER_API_HOST}/capi/logan/logDownload?id=${record.id}`}
+							href={`${process.env.SERVER_API_HOST}/website/capi/logan/logDownload?id=${record.id}`}
 							target="_blank"
 							style={{ display: 'block' }}
 						>

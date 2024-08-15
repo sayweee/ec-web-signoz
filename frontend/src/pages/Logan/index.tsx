@@ -254,7 +254,7 @@ function Logan(): JSX.Element {
 											href={`${
 												logIds.length > 0
 													? process.env.SERVER_API_HOST +
-													  '/capi/logan/logDownload?id=' +
+													  '/website/capi/logan/logDownload?id=' +
 													  logIds[i]
 													: process.env.LOGAN_FILE_PATH + item
 											}`}
@@ -272,7 +272,7 @@ function Logan(): JSX.Element {
 									href={`${
 										logIds.length > 0
 											? process.env.SERVER_API_HOST +
-											  '/capi/logan/logDownload?id=' +
+											  '/website/capi/logan/logDownload?id=' +
 											  logIds[i]
 											: process.env.LOGAN_FILE_PATH + item
 									}`}
