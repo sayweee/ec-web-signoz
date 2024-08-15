@@ -164,7 +164,7 @@ function LoganTaskModal({
 		setTaskData((prev) => {
 			return {
 				...prev,
-				[type]: value,
+				[type]: value?.trim(),
 			};
 		});
 	};
