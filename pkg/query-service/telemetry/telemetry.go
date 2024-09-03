@@ -11,7 +11,7 @@ import (
 	"testing"
 	"time"
 
-	ph "github.com/posthog/posthog-go"
+	// ph "github.com/posthog/posthog-go"
 	"gopkg.in/segmentio/analytics-go.v3"
 
 	"go.signoz.io/signoz/pkg/query-service/constants"
@@ -58,9 +58,6 @@ var SAAS_EVENTS_LIST = map[string]struct{}{
 	TELEMETRY_EVENT_USER_INVITATION_ACCEPTED: {},
 	TELEMETRY_EVENT_DASHBOARDS_ALERTS:        {},
 }
-
-const api_key = "4Gmoa4ixJAUHx2BpJxsjwA1bEfnwEeRz"
-const ph_api_key = "H-htDCae7CR3RV57gUzmol6IAKtm5IMCvbcm_fwnL-w"
 
 const IP_NOT_FOUND_PLACEHOLDER = "NA"
 const DEFAULT_NUMBER_OF_SERVICES = 6
@@ -140,9 +137,9 @@ func (telemetry *Telemetry) AddActiveLogsUser() {
 }
 
 type Telemetry struct {
-	operator      analytics.Client
-	saasOperator  analytics.Client
-	phOperator    ph.Client
+	// operator      analytics.Client
+	saasOperator analytics.Client
+	// phOperator    ph.Client
 	ipAddress     string
 	userEmail     string
 	isEnabled     bool
@@ -169,8 +166,8 @@ func createTelemetry() {
 	}
 
 	telemetry = &Telemetry{
-		operator:   analytics.New(api_key),
-		phOperator: ph.New(ph_api_key),
+		// operator:   analytics.New(api_key),
+		// phOperator: ph.New(ph_api_key),
 		ipAddress:  getOutboundIP(),
 		rateLimits: make(map[string]int8),
 		activeUser: make(map[string]int8),
@@ -343,17 +340,17 @@ func (a *Telemetry) IdentifyUser(user *model.User) {
 		})
 	}
 
-	a.operator.Enqueue(analytics.Identify{
-		UserId: a.ipAddress,
-		Traits: analytics.NewTraits().SetName(user.Name).SetEmail(user.Email).Set("ip", a.ipAddress),
-	})
+	// a.operator.Enqueue(analytics.Identify{
+	// 	UserId: a.ipAddress,
+	// 	Traits: analytics.NewTraits().SetName(user.Name).SetEmail(user.Email).Set("ip", a.ipAddress),
+	// })
 	// Updating a groups properties
-	a.phOperator.Enqueue(ph.GroupIdentify{
-		Type: "companyDomain",
-		Key:  a.getCompanyDomain(),
-		Properties: ph.NewProperties().
-			Set("companyDomain", a.getCompanyDomain()),
-	})
+	// a.phOperator.Enqueue(ph.GroupIdentify{
+	// 	Type: "companyDomain",
+	// 	Key:  a.getCompanyDomain(),
+	// 	Properties: ph.NewProperties().
+	// 		Set("companyDomain", a.getCompanyDomain()),
+	// })
 
 }
 
@@ -474,32 +471,32 @@ func (a *Telemetry) SendEvent(event string, data map[string]interface{}, userEma
 		})
 	}
 
-	a.operator.Enqueue(analytics.Track{
-		Event:      event,
-		UserId:     userId,
-		Properties: properties,
-	})
+	// a.operator.Enqueue(analytics.Track{
+	// 	Event:      event,
+	// 	UserId:     userId,
+	// 	Properties: properties,
+	// })
 
 	if event == TELEMETRY_EVENT_NUMBER_OF_SERVICES {
 
-		a.phOperator.Enqueue(ph.Capture{
-			DistinctId: userId,
-			Event:      TELEMETRY_EVENT_NUMBER_OF_SERVICES_PH,
-			Properties: ph.Properties(properties),
-			Groups: ph.NewGroups().
-				Set("companyDomain", a.getCompanyDomain()),
-		})
+		// a.phOperator.Enqueue(ph.Capture{
+		// 	DistinctId: userId,
+		// 	Event:      TELEMETRY_EVENT_NUMBER_OF_SERVICES_PH,
+		// 	Properties: ph.Properties(properties),
+		// 	Groups: ph.NewGroups().
+		// 		Set("companyDomain", a.getCompanyDomain()),
+		// })
 
 	}
 	if event == TELEMETRY_EVENT_ACTIVE_USER {
 
-		a.phOperator.Enqueue(ph.Capture{
-			DistinctId: userId,
-			Event:      TELEMETRY_EVENT_ACTIVE_USER_PH,
-			Properties: ph.Properties(properties),
-			Groups: ph.NewGroups().
-				Set("companyDomain", a.getCompanyDomain()),
-		})
+		// a.phOperator.Enqueue(ph.Capture{
+		// 	DistinctId: userId,
+		// 	Event:      TELEMETRY_EVENT_ACTIVE_USER_PH,
+		// 	Properties: ph.Properties(properties),
+		// 	Groups: ph.NewGroups().
+		// 		Set("companyDomain", a.getCompanyDomain()),
+		// })
 
 	}
 }
