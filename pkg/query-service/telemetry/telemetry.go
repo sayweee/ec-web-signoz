@@ -59,10 +59,6 @@ var SAAS_EVENTS_LIST = map[string]struct{}{
 	TELEMETRY_EVENT_DASHBOARDS_ALERTS:        {},
 }
 
-// const api_key = "4Gmoa4ixJAUHx2BpJxsjwA1bEfnwEeRz"
-
-// const ph_api_key = "H-htDCae7CR3RV57gUzmol6IAKtm5IMCvbcm_fwnL-w"
-
 const IP_NOT_FOUND_PLACEHOLDER = "NA"
 const DEFAULT_NUMBER_OF_SERVICES = 6
 
