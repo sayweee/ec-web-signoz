@@ -16,11 +16,11 @@ func TestAuthentication(t *testing.T) {
 	t.Parallel()
 
 	const (
-		AccessKey  = "testing"
-		SecretKey  = "hunter2"
-		BrokerName = "http://localhost:8089"
-		UserAgent  = "kafka-exporter"
-		region     = "us-east-1"
+		AccessKey  = ""
+		SecretKey  = ""
+		BrokerName = ""
+		UserAgent  = ""
+		region     = ""
 	)
 
 	mskAuth := NewIAMSASLClient(BrokerName, region, UserAgent).(*IAMSASLClient)
