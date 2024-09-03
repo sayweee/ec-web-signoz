@@ -12,7 +12,7 @@
             "program": "${workspaceFolder}/pkg/query-service/main.go",
             "env": {
                 // "ClickHouseUrl": "tcp://localhost:9000",
-                "ClickHouseUrl": "tcp://18.219.28.108:9000",
+                "ClickHouseUrl": "tcp://3.140.4.169:9000",
                 "STORAGE": "clickhouse",
                 // "ALERTMANAGER_API_PREFIX": "http://18.219.28.108:9093/api/"
             },
