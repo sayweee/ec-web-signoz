@@ -46,7 +46,7 @@ x-db-depend: &db-depend
 services:
 
   zookeeper-1:
-    image: bitnami/zookeeper:3.7.1
+    image: bitnami/zookeeper:3.9.1
     container_name: signoz-zookeeper-1
     hostname: zookeeper-1
     user: root

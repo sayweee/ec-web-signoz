@@ -39,7 +39,8 @@ make build-query-service-static-amd64
 # 关闭运行的前端与收集器容器
 echo "Stopping running containers..."
 # docker stop signoz-otel-collector signoz-frontend signoz-query-service || {
-docker stop signoz-otel-collector signoz-frontend signoz-query-service signoz-logspout signoz-alertmanager signoz-clickhouse signoz-zookeeper-1 2>/dev/null || true
+# docker stop signoz-otel-collector signoz-frontend signoz-query-service signoz-logspout signoz-alertmanager signoz-clickhouse signoz-zookeeper-1 2>/dev/null || true
+docker stop $(docker ps -q) 2>/dev/null || true
 
 # 删除所有停止的容器和未使用的镜像
 echo "delete unuse containers & images..."
