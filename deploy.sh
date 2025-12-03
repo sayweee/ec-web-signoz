@@ -17,13 +17,21 @@ npm install --force || {
     exit 1
 }
 
-# 构建前端，tb1环境执行npm run build:tb1
+# 构建前端，根据环境变量判断执行命令
 echo "Building the frontend..."
-# npm run build || {
-npm run build:tb1 || {
-    echo "Failed to build the frontend."
-    exit 1
-}
+if [ "$DEPLOY_ENV" == "tb1" ]; then
+    echo "Building for tb1 environment..."
+    npm run build:tb1 || {
+        echo "Failed to build the frontend (tb1)."
+        exit 1
+    }
+else
+    echo "Building for production environment..."
+    npm run build || {
+        echo "Failed to build the frontend."
+        exit 1
+    }
+fi
 
 # 构建otel-collector
 cd $OTEL_COLLECTOR_DIR || {
