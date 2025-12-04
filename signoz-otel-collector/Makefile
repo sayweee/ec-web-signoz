@@ -18,6 +18,12 @@ CLICKHOUSE_PORT ?= 9000
 
 LD_FLAGS ?=
 
+ifeq ($(GOOS),darwin)
+COLLECTOR_LDFLAGS := -s -w ${LD_FLAGS}
+else
+COLLECTOR_LDFLAGS := -linkmode external -extldflags '-static' -s -w ${LD_FLAGS}
+endif
+
 
 .PHONY: install-tools
 install-tools:
@@ -34,7 +40,7 @@ test:
 
 .PHONY: build
 build:
-	CGO_ENABLED=1 go build -tags timetzdata -o .build/${GOOS}-${GOARCH}/signoz-collector -ldflags "-linkmode external -extldflags '-static' -s -w ${LD_FLAGS}" ./cmd/signozcollector
+	CGO_ENABLED=1 go build -tags timetzdata -o .build/${GOOS}-${GOARCH}/signoz-collector -ldflags "$(COLLECTOR_LDFLAGS)" ./cmd/signozcollector
 	#CGO_ENABLED=1 go build -tags timetzdata -o .build/${GOOS}-${GOARCH}/signoz-schema-migrator -ldflags "-linkmode external -extldflags '-static' -s -w ${LD_FLAGS}" ./cmd/signozschemamigrator
 	#CGO_ENABLED=1 go build -tags timetzdata -o .build/${GOOS}-${GOARCH}/signoz-collector ./cmd/signozcollector
 
@@ -45,6 +51,10 @@ amd64:
 .PHONY: arm64
 arm64:
 	make CC=aarch64-linux-gnu-gcc GOARCH=arm64 build
+
+.PHONY: build-mac
+build-mac:
+	make build
 
 .PHONY: build-all
 build-all: amd64 arm64

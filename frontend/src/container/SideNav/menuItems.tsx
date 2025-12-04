@@ -67,16 +67,16 @@ export const trySignozCloudMenuItem: SidebarItem = {
 };
 
 const menuItems: SidebarItem[] = [
-	// {
-	// 	key: ROUTES.APPLICATION,
-	// 	label: 'Services',
-	// 	icon: <BarChart2 size={16} />,
-	// },
-	// {
-	// 	key: ROUTES.TRACE,
-	// 	label: 'Traces',
-	// 	icon: <DraftingCompass size={16} />,
-	// },
+	{
+		key: ROUTES.APPLICATION,
+		label: 'Services',
+		icon: <BarChart2 size={16} />,
+	},
+	{
+		key: ROUTES.TRACE,
+		label: 'Traces',
+		icon: <DraftingCompass size={16} />,
+	},
 	{
 		key: ROUTES.ALL_DASHBOARD,
 		label: 'Dashboards',

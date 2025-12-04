@@ -7,6 +7,7 @@
 		"i18n:generate-hash": "node ./i18-generate-hash.js",
 		"dev": "npm run i18n:generate-hash && cross-env NODE_ENV=development webpack serve --progress",
 		"clean": "rimraf ./build",
+		"build:dev": "npm run clean && npm run i18n:generate-hash && cross-env NODE_ENV=development webpack --config=webpack.config.prod.js --progress",
 		"build": "npm run clean && npm run i18n:generate-hash && cross-env NODE_ENV=production webpack --config=webpack.config.prod.js --progress",
 		"build:tb1": "npm run clean && npm run i18n:generate-hash && cross-env NODE_ENV=tb1 webpack --config=webpack.config.prod.js --progress",
 		"prettify": "prettier --write .",

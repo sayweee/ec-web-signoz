@@ -21,7 +21,8 @@ x-clickhouse-defaults: &clickhouse-defaults
         "wget",
         "--spider",
         "-q",
-        "localhost:8123/ping"
+        # "localhost:8123/ping"
+        "http://127.0.0.1:8123/ping"
       ]
     interval: 30s
     timeout: 5s
@@ -46,7 +47,7 @@ x-db-depend: &db-depend
 services:
 
   zookeeper-1:
-    image: bitnami/zookeeper:3.7.1
+    image: zookeeper:3.8
     container_name: signoz-zookeeper-1
     hostname: zookeeper-1
     user: root
@@ -55,13 +56,14 @@ services:
       - "2888:2888"
       - "3888:3888"
     volumes:
-      - /home/ubuntu/signoz-data/data/zookeeper-1:/bitnami/zookeeper
-      # - ./data/zookeeper-1:/bitnami/zookeeper
+      # - /home/ubuntu/signoz-data/data/zookeeper-1:/bitnami/zookeeper
+      - ./data/zookeeper-1/data:/data
+      - ./data/zookeeper-1/datalog:/datalog
     environment:
-      - ZOO_SERVER_ID=1
-      # - ZOO_SERVERS=0.0.0.0:2888:3888,zookeeper-2:2888:3888,zookeeper-3:2888:3888
-      - ALLOW_ANONYMOUS_LOGIN=yes
-      - ZOO_AUTOPURGE_INTERVAL=1
+      - ZOO_MY_ID=1
+      # - ZOO_SERVERS=server.1=0.0.0.0:2888:3888;2181 server.2=zookeeper-2:2888:3888;2181 server.3=zookeeper-3:2888:3888;2181
+      - ZOO_AUTOPURGE_SNAPRETAINCOUNT=3
+      - ZOO_AUTOPURGE_PURGEINTERVAL=1
 
   # zookeeper-2:
   #   image: bitnami/zookeeper:3.7.0
@@ -111,10 +113,10 @@ services:
       - ./custom-function.xml:/etc/clickhouse-server/custom-function.xml
       - ./clickhouse-cluster.xml:/etc/clickhouse-server/config.d/cluster.xml
       # - ./clickhouse-storage.xml:/etc/clickhouse-server/config.d/storage.xml
-      - /home/ubuntu/signoz-data/data/clickhouse/:/var/lib/clickhouse/
-      # - ./data/clickhouse/:/var/lib/clickhouse/
-      - /home/ubuntu/signoz-data/user_scripts:/var/lib/clickhouse/user_scripts/
-      # - ./user_scripts:/var/lib/clickhouse/user_scripts/
+      # - /home/ubuntu/signoz-data/data/clickhouse/:/var/lib/clickhouse/
+      - ./data/clickhouse/:/var/lib/clickhouse/
+      # - /home/ubuntu/signoz-data/user_scripts:/var/lib/clickhouse/user_scripts/
+      - ./user_scripts:/var/lib/clickhouse/user_scripts/
 
   # clickhouse-2:
   #   <<: *clickhouse-defaults
@@ -155,8 +157,8 @@ services:
     image: signoz/alertmanager:${ALERTMANAGER_TAG:-0.23.4}
     container_name: signoz-alertmanager
     volumes:
-      - /home/ubuntu/signoz-data/data/alertmanager:/data
-      # - ./data/alertmanager:/data
+      # - /home/ubuntu/signoz-data/data/alertmanager:/data
+      - ./data/alertmanager:/data
     # expose:
     #   - "9093"
     # ports:
@@ -172,10 +174,10 @@ services:
   # Notes for Maintainers/Contributors who will change Line Numbers of Frontend & Query-Section. Please Update Line Numbers in `./scripts/commentLinesForSetup.sh` & `./CONTRIBUTING.md`
 
   query-service:
-    # image: signoz/query-service:${DOCKER_TAG:-0.39.1}
-    build:
-      context: "../../../pkg/query-service"
-      dockerfile: "./Dockerfile"
+    image: signoz/query-service:${DOCKER_TAG:-0.39.1}
+    # build:
+    #   context: "../../../"
+    #   dockerfile: "./pkg/query-service/Dockerfile"
     container_name: signoz-query-service
     command:
       [
@@ -187,10 +189,10 @@ services:
     #   - "8080:8080"     # query-service port
     volumes:
       - ./prometheus.yml:/root/config/prometheus.yml
-      - /home/ubuntu/signoz-data/dashboards:/root/config/dashboards
-      # - ./dashboards:/root/config/dashboards
-      - /home/ubuntu/signoz-data/data/signoz/:/var/lib/signoz/
-      # - ./data/signoz/:/var/lib/signoz/
+      # - /home/ubuntu/signoz-data/dashboards:/root/config/dashboards
+      - ./dashboards:/root/config/dashboards
+      # - /home/ubuntu/signoz-data/data/signoz/:/var/lib/signoz/
+      - ./data/signoz/:/var/lib/signoz/
     environment:
       - ClickHouseUrl=tcp://clickhouse:9000/?database=signoz_traces
       - ALERTMANAGER_API_PREFIX=http://alertmanager:9093/api/
@@ -278,8 +280,8 @@ services:
       - ./otel-collector-config.yaml:/etc/otel-collector-config.yaml
       - ./otel-collector-opamp-config.yaml:/etc/manager-config.yaml
       - /var/lib/docker/containers:/var/lib/docker/containers:ro
-      - /home/ubuntu/templogs/:/tmp/
-      # - ./templogs/:/tmp/
+      # - /home/ubuntu/templogs/:/tmp/
+      - ./templogs/:/tmp/
     environment:
       - OTEL_RESOURCE_ATTRIBUTES=host.name=signoz-host,os.type=linux
       - DOCKER_MULTI_NODE_CLUSTER=false

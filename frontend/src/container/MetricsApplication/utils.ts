@@ -22,6 +22,12 @@ export const navigateToTrace = ({
 	const urlParams = new URLSearchParams();
 	urlParams.set(QueryParams.startTime, (minTime / 1000000).toString());
 	urlParams.set(QueryParams.endTime, (maxTime / 1000000).toString());
+	console.log(
+		'urlLink',
+		`${
+			ROUTES.TRACE
+		}?${urlParams.toString()}&selected={"serviceName":["${servicename}"],"operation":["${operation}"]}&filterToFetchData=["duration","status","serviceName","operation"]&spanAggregateCurrentPage=1&selectedTags=${selectedTraceTags}&&isFilterExclude={"serviceName":false,"operation":false}&userSelectedFilter={"status":["error","ok"],"serviceName":["${servicename}"],"operation":["${operation}"]}&spanAggregateCurrentPage=1`,
+	);
 	history.push(
 		`${
 			ROUTES.TRACE

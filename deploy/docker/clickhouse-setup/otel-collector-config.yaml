@@ -5,17 +5,25 @@ receivers:
     operators:
       - type: json_parser
         parse_from: body
+      - type: move
+        from: body.data
+        to: attributes.data
       - type: json_parser
         parse_from: attributes.data
-        output: remove_unuse
+      # 从解析后的 data 中提取 traceId 和 spanId 到 attributes
+      - type: move
+        from: attributes.data.traceId
+        to: attributes.trace_id
+      - type: move
+        from: attributes.data.spanId
+        to: attributes.span_id
+      - type: move
+        from: attributes.data.VD
+        to: attributes.VD
       - type: remove
-        id: remove_unuse
         field: attributes.data
-        if: '"data" in attributes'
       - type: remove
-        id: remove_unuse2
         field: attributes["log.file.name"]
-        if: '"log.file.name" in attributes'
 
   filelog/customlog:
     include: ["/tmp/customlog.log"]
@@ -25,15 +33,46 @@ receivers:
         parse_from: body
       - type: json_parser
         parse_from: attributes.data
-        output: remove_unuse
+      # 从解析后的 data 中提取 traceId 和 spanId 到 attributes
+      - type: move
+        from: attributes.data.traceId
+        to: attributes.trace_id
+      - type: move
+        from: attributes.data.spanId
+        to: attributes.span_id
       - type: remove
-        id: remove_unuse
         field: attributes.data
-        if: '"data" in attributes'
       - type: remove
-        id: remove_unuse2
         field: attributes["log.file.name"]
-        if: '"log.file.name" in attributes'
+
+  filelog/resourcelog:
+    include: ["/tmp/resourcelog.log"]
+    start_at: beginning
+    operators:
+      - type: json_parser
+        parse_from: body
+      - type: move
+        from: body.data
+        to: attributes.data
+      - type: json_parser
+        parse_from: attributes.data
+      # 从解析后的 data 中提取 traceId 和 spanId 到 attributes
+      - type: move
+        from: attributes.data.traceId
+        to: attributes.trace_id
+      - type: move
+        from: attributes.data.spanId
+        to: attributes.span_id
+      - type: move
+        from: attributes.data.entries
+        to: attributes.entries
+      - type: move
+        from: attributes.data.summary
+        to: attributes.summary
+      - type: remove
+        field: attributes.data
+      - type: remove
+        field: attributes["log.file.name"]
 
   tcplog/docker:
     listen_address: "0.0.0.0:2255"
@@ -103,6 +142,18 @@ processors:
     send_batch_size: 10000
     send_batch_max_size: 11000
     timeout: 10s
+  
+  # 使用 transform processor 将 attributes 中的 traceId 和 spanId 设置到顶层
+  transform/logs:
+    error_mode: ignore
+    log_statements:
+      - context: log
+        statements:
+          # 从 attributes.traceId 设置到顶层 trace_id
+          - set(trace_id.string, attributes["traceId"]) where attributes["traceId"] != nil
+          # 从 attributes.spanId 设置到顶层 span_id  
+          - set(span_id.string, attributes["spanId"]) where attributes["spanId"] != nil
+  
   signozspanmetrics/cumulative:
     metrics_exporter: clickhousemetricswrite
     metrics_flush_interval: 60s
@@ -243,6 +294,6 @@ service:
       processors: [batch]
       exporters: [clickhousemetricswrite/prometheus]
     logs:
-      receivers: [otlp, filelog/access, filelog/customlog, tcplog/docker]
-      processors: [batch]
+      receivers: [otlp, filelog/access, filelog/customlog, filelog/resourcelog, tcplog/docker]
+      processors: [transform/logs, batch]
       exporters: [clickhouselogsexporter]
